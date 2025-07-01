@@ -54,6 +54,7 @@ public class ObjectPooling : MonoBehaviour
         // If none found, instantiate new
         GameObject newObj = Instantiate(prefab, position, rotation);
         pools[prefab].Add(newObj);
+        newObj.transform.SetParent(transform);
         return newObj;
     }
 
