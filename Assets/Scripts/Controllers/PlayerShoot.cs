@@ -17,9 +17,23 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] float aimLockDistance = 10f;
 
     float timer;
+    bool lockedInput;
+
+    private void Awake()
+    {
+        GetComponent<EntityPlayer>().lockInput += Locked;
+    }
+
+    private void Locked(bool locked)
+    {
+        lockedInput = locked;
+    }
 
     private void Update()
     {
+        if (lockedInput) return;
+
+
         if (Input.GetKey(shootKey))
         {
             if (timer <= 0f)
