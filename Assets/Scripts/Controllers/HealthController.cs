@@ -4,7 +4,7 @@ namespace utilities.Controllers
 {
     public class HealthController : MonoBehaviour
     {
-        public delegate void OnDeath();
+        public delegate void OnDeath(GameObject gameObject);
         public delegate void OnDamage(float MaxHp, float currentHp);
 
         public OnDeath onDeath;
@@ -45,7 +45,7 @@ namespace utilities.Controllers
                     Destroy(clone, clone.GetComponent<ParticleSystem>().main.duration);
                 }
 
-                onDeath?.Invoke();
+                onDeath?.Invoke(gameObject);
             }
         }
 

@@ -6,7 +6,7 @@ public class PlayerInputController : MonoBehaviour
     [SerializeField] float speed = 10f;
     Rigidbody rb;
 
-    bool lockedInput;
+    bool lockedInput = false;
 
     private void Awake()
     {

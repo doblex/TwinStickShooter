@@ -5,6 +5,7 @@ using utilities.Controllers;
 public abstract class Entity : MonoBehaviour
 {
     [SerializeField] protected Transform respawn;
+    [SerializeField] GameObject mesh;
 
     protected HealthController healthController;
 
@@ -21,7 +22,15 @@ public abstract class Entity : MonoBehaviour
         healthController.onDeath += OnDeath;
     }
 
-    protected abstract void OnDeath();
+    protected virtual void OnDeath(GameObject gameObject) 
+    {
+        mesh.SetActive(false);
+    }
 
-    public abstract void Respawn();
+    public virtual void Respawn() 
+    {
+        mesh.SetActive(true);
+        transform.position = respawn.position;
+        healthController.ResetHealth();
+    }
 }

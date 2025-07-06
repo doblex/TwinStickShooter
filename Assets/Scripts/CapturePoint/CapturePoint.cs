@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using utilities.Controllers;
 
 [RequireComponent(typeof(LineRenderer))]
 public class CapturePoint : MonoBehaviour
@@ -121,6 +122,7 @@ public class CapturePoint : MonoBehaviour
         if (other.gameObject.TryGetComponent<Entity>(out Entity entity))
         {
             EntitiesInRange.Add(entity);
+            other.gameObject.GetComponent<HealthController>().onDeath += OnDeath;
         }
     }
 
@@ -129,6 +131,18 @@ public class CapturePoint : MonoBehaviour
         if (other.gameObject.TryGetComponent<Entity>(out Entity entity))
         {
             EntitiesInRange.Remove(entity);
+            other.gameObject.GetComponent<HealthController>().onDeath -= OnDeath;
+        }
+    }
+
+    private void OnDeath(GameObject gameObject)
+    {
+        Entity entity = gameObject.GetComponent<Entity>();
+
+        if (entity != null)
+        {
+            EntitiesInRange.Remove(entity);
+            gameObject.GetComponent<HealthController>().onDeath -= OnDeath;
         }
     }
 }

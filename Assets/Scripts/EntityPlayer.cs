@@ -7,8 +7,6 @@ public class EntityPlayer : Entity
 
     public OnLockInput lockInput;
 
-    [SerializeField] GameObject mesh;
-
     protected override void Awake()
     {
         base.Awake();
@@ -17,13 +15,13 @@ public class EntityPlayer : Entity
 
     public override void Respawn()
     {
-        mesh.SetActive(true);
-        lockInput?.Invoke(true);
+        base.Respawn();
+        lockInput?.Invoke(false);
     }
 
-    protected override void OnDeath()
+    protected override void OnDeath(GameObject gameObject)
     {
-        mesh.SetActive(false);
-        lockInput?.Invoke(false);
+        base.OnDeath(gameObject);
+        lockInput?.Invoke(true);
     }
 }

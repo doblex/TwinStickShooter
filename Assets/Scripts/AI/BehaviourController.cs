@@ -72,7 +72,7 @@ public class BehaviourController : MonoBehaviour
         healthController.onDeath += OnDeath;
     }
 
-    private void OnDeath()
+    private void OnDeath(GameObject gameObject)
     {
         ChangeState(STATE.DEATH);      
     }
