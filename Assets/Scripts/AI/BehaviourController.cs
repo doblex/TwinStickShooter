@@ -73,8 +73,7 @@ public class BehaviourController : MonoBehaviour
     }
 
     private void OnDeath(GameObject gameObject)
-    {
-        ChangeState(STATE.DEATH);      
+    { 
     }
 
     private void Update()

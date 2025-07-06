@@ -1,20 +1,7 @@
-public enum ZombieType
-{
-    BASIC,
-    FAST,
-    RANGER
-}
 
 public enum STATE
 {
-    IDLE, 
-    PATROL, 
-    CHASE, 
-    ATTACK,
-    DEATH,
-    REPOSITION,
-    SPECIAL_ATTACK,
-    ATTACHED,
+    GO_TO_ZONE
 }
 
 public enum EVENT

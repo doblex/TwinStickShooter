@@ -1,26 +1,32 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RespawnManager : MonoBehaviour
 {
+    [Serializable]
     public class RespawnObj 
     {
         public Entity Entity;
         public float Timer;
     }
 
-    [SerializeField] float RespawnTime = 5f;
-    List<RespawnObj> entitiesToSpawn = new List<RespawnObj>();
-    
+    public static RespawnManager Instance;
 
-    public void RespawnEntity(Entity entity)
+    [SerializeField] float RespawnTime = 5f;
+    [SerializeField] List<RespawnObj> entitiesToSpawn = new List<RespawnObj>();
+
+
+    private void Awake()
     {
-        entitiesToSpawn.Add(
-            new RespawnObj()
-            {
-                Entity = entity,
-                Timer = RespawnTime
-            });
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+        }
     }
 
     private void Update()
@@ -34,7 +40,19 @@ public class RespawnManager : MonoBehaviour
             if (obj.Timer <= 0)
             {
                 obj.Entity.Respawn();
+                entitiesToSpawn.RemoveAt(i);
+                i--;
             }
         }
+    }
+
+    public void RespawnEntity(Entity entity)
+    {
+        entitiesToSpawn.Add(
+            new RespawnObj()
+            {
+                Entity = entity,
+                Timer = RespawnTime
+            });
     }
 }

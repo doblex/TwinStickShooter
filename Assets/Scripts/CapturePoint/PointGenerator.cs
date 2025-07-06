@@ -10,7 +10,9 @@ public class PointGenerator : MonoBehaviour
     [SerializeField] Material neutral;
     [SerializeField] Material contended;
     [SerializeField] Material player;
+    [SerializeField] Material playerCaptured;
     [SerializeField] Material ai;
+    [SerializeField] Material aiCaptured;
 
 
     [SerializeField] List<CapturePoint> points;
@@ -26,6 +28,8 @@ public class PointGenerator : MonoBehaviour
     public Material Player { get => player; }
     public Material Ai { get => ai; }
     public CapturePoint CurrentCapturePoint { get => currentCapturePoint; }
+    public Material PlayerCaptured { get => playerCaptured ; }
+    public Material AiCaptured { get => aiCaptured; }
 
     private void Awake()
     {
@@ -91,5 +95,7 @@ public class PointGenerator : MonoBehaviour
 
         currentCapturePoint = point;
         currentCapturePoint.gameObject.SetActive(true);
+        currentCapturePoint.ResetCapturePoint();
+
     }
 }

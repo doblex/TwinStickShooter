@@ -59,7 +59,15 @@ public class State
 
         if(direction.magnitude < controller.VisionDistance && angle < controller.VisionAngle)
         {
-            return true;
+            Ray ray = new Ray(npc.transform.position, direction);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, controller.VisionDistance))
+            {
+                if (hit.transform.CompareTag("Player"))
+                { 
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -82,22 +90,6 @@ public class State
         {
             return COMBATRANGE.RANGE;
         }
-    }
-
-    public bool IsPlayerBehind()
-    {
-        Vector3 direction = npc.transform.position - playerTransform.position;
-        float angle = Vector3.Angle(direction, npc.transform.forward);
-
-        float dotProduct = Vector3.Dot(npc.transform.forward, playerTransform.forward);
-        
-        
-        if (direction.magnitude < controller.AttackDistance && angle < 30)
-        {
-            return true;
-        }
-
-        return false;
     }
 
     protected void Seek(Vector3 position)

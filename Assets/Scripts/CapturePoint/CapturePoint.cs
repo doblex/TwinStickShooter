@@ -6,10 +6,19 @@ using utilities.Controllers;
 public class CapturePoint : MonoBehaviour
 {
     [SerializeField] List<Entity> EntitiesInRange;
+    [SerializeField] float captureTimeToCapture = 5f;
+    [SerializeField] float pointAwardTime = 1f;
 
-    [SerializeField] CapturePointState state;
 
     LineRenderer lr;
+
+    CapturePointState currentState;
+    CapturePointState previusState = CapturePointState.Neutral;
+    bool isCaptured;
+
+    float captureTime = 0f;
+    float awardTime = 0f;
+
 
     private void Awake()
     {
@@ -42,40 +51,91 @@ public class CapturePoint : MonoBehaviour
 
     private void Update()
     {
-        SetColor();
+        CheckState();
+        AwardPoints();
     }
 
-    private void SetColor()
+    private void AwardPoints()
     {
-        Material mat = null;
+        if (!isCaptured) return;
 
-        switch (GetState())
+        if (awardTime >= pointAwardTime)
         {
-            case CapturePointState.Neutral:
-                mat = PointGenerator.Instance.Neutral;
-                break;
-            case CapturePointState.Contended:
-                mat = PointGenerator.Instance.Contended;
-                break;
-            case CapturePointState.Player:
-                mat = PointGenerator.Instance.Player;
-                break;
-            case CapturePointState.AI:
-                mat = PointGenerator.Instance.Ai;
-                break;
+            switch (currentState)
+            {
+                case CapturePointState.Player:
+                    PointsManager.Instance.AddPlayerPoints(1);
+                    break;
+                case CapturePointState.AI:
+                    PointsManager.Instance.AddAiPoints(1);
+                    break;
+            }
+            Debug.Log($"Points Awarded: {currentState} at {gameObject.name}");
+            awardTime = 0f;
         }
 
-        SetMaterial(mat);
+        awardTime += Time.deltaTime;
     }
 
-    public void SetMaterial(Material material)
+    private void CheckState()
     {
-        lr.material = material;
+        currentState = GetState();
+
+        bool isStateChanged = currentState != previusState;
+
+        if (isStateChanged)
+        {
+            captureTime = 0f;
+            previusState = currentState;
+            Debug.Log($"Capture Point State Changed: {currentState} at {gameObject.name}");
+        }
+
+        isCaptured = captureTime >= captureTimeToCapture;
+
+        SetMaterial(currentState);
+
+        captureTime += Time.deltaTime;
+    }
+
+    public void SetMaterial(CapturePointState state)
+    {
+        if (state == CapturePointState.Neutral)
+        {
+            lr.material = PointGenerator.Instance.Neutral;
+        }
+        else if (state == CapturePointState.Contended)
+        {
+            lr.material = PointGenerator.Instance.Contended;
+        }
+        else if (state == CapturePointState.Player)
+        {
+            if (isCaptured)
+            {
+                lr.material = PointGenerator.Instance.PlayerCaptured;
+            }
+            else
+            {
+                lr.material = PointGenerator.Instance.Player;
+            }
+        }
+        else if (state == CapturePointState.AI)
+        {
+            if (isCaptured)
+            {
+                lr.material = PointGenerator.Instance.AiCaptured;
+            }
+            else
+            {
+                lr.material = PointGenerator.Instance.Ai;
+            }
+        }
+
+        Debug.Log($"Capture Point Material Set: {lr.material.name} for state {state} at {gameObject.name}");
     }
 
     private CapturePointState GetState()
     {
-        CapturePointState pointState = CapturePointState.Neutral;
+        CapturePointState pointState = previusState;
         bool isAIPresent = false;
         bool isPlayerPresent = false;
 
@@ -104,12 +164,17 @@ public class CapturePoint : MonoBehaviour
         {
             pointState = CapturePointState.AI;
         }
-        else
-        {
-            pointState = CapturePointState.Neutral;
-        }
 
         return pointState;
+    }
+
+    public void ResetCapturePoint() 
+    {
+        previusState = CapturePointState.Neutral;
+        captureTime = 0f;
+        EntitiesInRange.Clear();
+
+        Debug.Log($"Capture Point Reset at {transform.position} to state {previusState}.");
     }
 
     public Vector3 GetPosition()

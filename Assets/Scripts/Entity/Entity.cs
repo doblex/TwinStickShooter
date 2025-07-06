@@ -25,6 +25,7 @@ public abstract class Entity : MonoBehaviour
     protected virtual void OnDeath(GameObject gameObject) 
     {
         mesh.SetActive(false);
+        RespawnManager.Instance.RespawnEntity(this);
     }
 
     public virtual void Respawn() 
