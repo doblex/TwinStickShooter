@@ -6,6 +6,9 @@ public class PointGenerator : MonoBehaviour
 {
     public static PointGenerator Instance;
 
+    public delegate void OnPointChanged(CapturePoint capturePoint);
+    public event OnPointChanged onPointChanged;
+
     [Header("Materials")]
     [SerializeField] Material neutral;
     [SerializeField] Material contended;
@@ -13,7 +16,6 @@ public class PointGenerator : MonoBehaviour
     [SerializeField] Material playerCaptured;
     [SerializeField] Material ai;
     [SerializeField] Material aiCaptured;
-
 
     [SerializeField] List<CapturePoint> points;
 
@@ -97,5 +99,23 @@ public class PointGenerator : MonoBehaviour
         currentCapturePoint.gameObject.SetActive(true);
         currentCapturePoint.ResetCapturePoint();
 
+        onPointChanged?.Invoke(currentCapturePoint);
+
+    }
+
+    public void RegisterEvent(CapturePoint.OnpointCaptured func)
+    { 
+        foreach (CapturePoint point in points)
+        {
+            point.onPointCaptured += func;
+        }
+    }
+
+    public void UnregisterEvent(CapturePoint.OnpointCaptured func)
+    {
+        foreach (CapturePoint point in points)
+        {
+            point.onPointCaptured -= func;
+        }
     }
 }

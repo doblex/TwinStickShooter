@@ -12,6 +12,10 @@ public abstract class Entity : MonoBehaviour
     protected PGType type;
     public PGType Type { get => type; }
 
+    public bool IsDead { get => isDead; }
+
+    bool isDead = false;
+
     protected virtual void Awake()
     {
         healthController = GetComponent<HealthController>();
@@ -25,12 +29,14 @@ public abstract class Entity : MonoBehaviour
     protected virtual void OnDeath(GameObject gameObject) 
     {
         mesh.SetActive(false);
+        isDead = true;
         RespawnManager.Instance.RespawnEntity(this);
     }
 
     public virtual void Respawn() 
     {
         mesh.SetActive(true);
+        isDead = false;
         transform.position = respawn.position;
         healthController.ResetHealth();
     }

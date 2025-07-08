@@ -269,4 +269,4 @@ MonoBehaviour:
   damage: 1
   speed: 10
   lifetime: 5
-  bounces: 3
+  bounces: 0

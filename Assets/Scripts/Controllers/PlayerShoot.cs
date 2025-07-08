@@ -12,6 +12,11 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] GameObject projectilePrefab;
     [SerializeField] Transform shootPoint;
 
+    [Header("laser Options")]
+    [SerializeField][Range(1, 10)] float baseLaserDistance;
+    [SerializeField][Range(5, 20)] float laserAimDistance;
+    [SerializeField] LayerMask projectileLayer;
+
     [Header("Cam settings")]
     [SerializeField] Transform aimLock;
     [SerializeField] float aimLockDistance = 10f;
@@ -19,17 +24,53 @@ public class PlayerShoot : MonoBehaviour
     float timer;
     bool lockedInput;
 
+    LineRenderer lr;
+    float laserDistance;
+
     private void Awake()
     {
         GetComponent<EntityPlayer>().lockInput += Locked;
+        lr = GetComponent<LineRenderer>();
+    }
+
+    private void Start()
+    {
+        lr.startWidth = 0.05f;
+        laserDistance = baseLaserDistance;
     }
 
     private void Locked(bool locked)
     {
         lockedInput = locked;
+        lr.enabled = !locked;
     }
 
     private void Update()
+    {
+        KeyCheck();
+        UpdateLaser();
+    }
+
+    private void UpdateLaser()
+    {
+        if (lr != null && lr.enabled)
+        {
+            lr.SetPosition(0, shootPoint.position);
+
+            Ray ray = new Ray(shootPoint.position, shootPoint.forward);
+
+            if (Physics.Raycast(ray,out RaycastHit hit, laserDistance, ~projectileLayer))
+            { 
+                lr.SetPosition(1, hit.point);
+            }
+            else
+            {
+                lr.SetPosition(1, shootPoint.position + shootPoint.forward * laserDistance);
+            }
+        }
+    }
+
+    private void KeyCheck()
     {
         if (lockedInput) return;
 
@@ -40,6 +81,7 @@ public class PlayerShoot : MonoBehaviour
             {
                 Shoot();
                 timer = shootCooldown;
+
             }
             else
             {
@@ -50,11 +92,13 @@ public class PlayerShoot : MonoBehaviour
         if (Input.GetKeyDown(aimKey))
         {
             CameraManager.Instance.SwitchCamera(1);
+            laserDistance = laserAimDistance;
         }
 
         if (Input.GetKeyUp(aimKey))
-        { 
+        {
             CameraManager.Instance.SwitchCamera(0);
+            laserDistance = baseLaserDistance;
         }
 
         MoveAimLock();

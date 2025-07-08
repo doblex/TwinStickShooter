@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
 using utilities.Controllers;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(AnimatorController))]
@@ -26,24 +28,30 @@ public class BehaviourController : MonoBehaviour
 
     [Header("Attack")]
     [SerializeField] float attackCooldown = 1.0f;
-    [SerializeField][ShowIf("isRanged", false)] int attackDamage = 1;
-    [SerializeField, Range(1f, 20f)] float attackDistance = 4.0f;
+    [SerializeField] int attackDamage = 1;
+    [SerializeField, Range(1f, 100f)] float attackDistance = 4.0f;
     [SerializeField, Range(1f, 20f)] float minimumRange = 0.0f;
     [SerializeField] bool isRanged = false;
-    [SerializeField][ShowIf("isRanged")] GameObject projectilePrefab;
-    [SerializeField][ShowIf("isRanged")] Transform shootPos;
-    [SerializeField][ShowIf("isRanged")] float projectileSpeed = 10.0f;
+    [SerializeField] GameObject projectilePrefab;
+    [SerializeField] Transform shootPos;
+    [SerializeField] float projectileSpeed = 10.0f;
 
     [Header("Speeds")]
     [SerializeField] float wanderSpeed = 1f;
     [SerializeField] float chaseSpeed = 2f;
     [SerializeField] float repositionSpeed = 1f;
 
+    [Header("SearchForHeal")]
+    [SerializeField] int healThreshold = 5;
+    [SerializeField, Range(1, 100)] int healProbability;  
+
     [Header("DON'T TOUCH")]
     [ReadOnly][SerializeField] List<State> states = new List<State>();
     [ReadOnly][SerializeField] State currentState;
 
     Transform player;
+    bool isDead = false;
+    bool onCapturePoint = false;
 
     #region Getters
     public State CurrentState { get => currentState; }
@@ -61,6 +69,9 @@ public class BehaviourController : MonoBehaviour
     public float WanderSpeed { get => wanderSpeed; }
     public float ChaseSpeed { get => chaseSpeed; }
     public float RepositionSpeed { get => repositionSpeed; }
+    public bool IsDead { get => isDead; set => isDead = value; }
+    public bool OnCapturePoint { get => onCapturePoint; set => onCapturePoint = value; }
+    public int HealThreshold { get => healThreshold; }
     #endregion
 
 
@@ -70,6 +81,19 @@ public class BehaviourController : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
         healthController = GetComponent<HealthController>();
         healthController.onDeath += OnDeath;
+        healthController.onDamage += OnDamage;
+    }
+
+    private void OnDamage(float MaxHp, float currentHp)
+    {
+        if (currentHp > healThreshold) return;
+
+        bool prob = Random.Range(0, 100) < healProbability;
+
+        if (prob)
+        {
+            ChangeState(STATE.CURE);
+        }
     }
 
     private void OnDeath(GameObject gameObject)

@@ -1,7 +1,12 @@
 
 public enum STATE
 {
-    GO_TO_ZONE
+    IDLE,
+    CAPTURE,
+    CAMP,
+    CHASE,
+    ATTACK,
+    CURE
 }
 
 public enum EVENT

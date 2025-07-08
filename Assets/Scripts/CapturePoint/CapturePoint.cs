@@ -5,20 +5,28 @@ using utilities.Controllers;
 [RequireComponent(typeof(LineRenderer))]
 public class CapturePoint : MonoBehaviour
 {
+    public delegate void OnpointCaptured(CapturePointState capturePointState);
+
+    public event OnpointCaptured onPointCaptured;
+
     [SerializeField] List<Entity> EntitiesInRange;
     [SerializeField] float captureTimeToCapture = 5f;
     [SerializeField] float pointAwardTime = 1f;
 
+    [SerializeField] List<Transform> hidingSpots = new();
 
     LineRenderer lr;
 
-    CapturePointState currentState;
-    CapturePointState previusState = CapturePointState.Neutral;
+    [SerializeField][ReadOnly]CapturePointState currentState;
+    CapturePointState previusState = CapturePointState.Neutral; 
     bool isCaptured;
+    bool firedEvent = false;
 
     float captureTime = 0f;
     float awardTime = 0f;
 
+    public List<Transform> HidingSpots { get => hidingSpots; }
+    public CapturePointState CurrentState { get => currentState; }
 
     private void Awake()
     {
@@ -47,6 +55,8 @@ public class CapturePoint : MonoBehaviour
         points[3] = center + new Vector3(colliderSize.x, height, -colliderSize.z);
         
         lr.SetPositions(points);
+
+        SetMaterial(currentState);
     }
 
     private void Update()
@@ -63,10 +73,10 @@ public class CapturePoint : MonoBehaviour
         {
             switch (currentState)
             {
-                case CapturePointState.Player:
+                case CapturePointState.PlayerCaptured:
                     PointsManager.Instance.AddPlayerPoints(1);
                     break;
-                case CapturePointState.AI:
+                case CapturePointState.AICaptured:
                     PointsManager.Instance.AddAiPoints(1);
                     break;
             }
@@ -81,20 +91,28 @@ public class CapturePoint : MonoBehaviour
     {
         currentState = GetState();
 
+        isCaptured = captureTime >= captureTimeToCapture;
+
         bool isStateChanged = currentState != previusState;
 
         if (isStateChanged)
         {
-            captureTime = 0f;
+            if ((previusState == CapturePointState.PlayerCaptured && currentState == CapturePointState.AICaptured)
+                || (previusState == CapturePointState.AICaptured && currentState == CapturePointState.PlayerCaptured)
+                || (currentState != CapturePointState.PlayerCaptured && currentState != CapturePointState.AICaptured)
+                )
+            { 
+                captureTime = 0f;
+            }
+
+            firedEvent = false;
             previusState = currentState;
+            SetMaterial(currentState);
             Debug.Log($"Capture Point State Changed: {currentState} at {gameObject.name}");
         }
 
-        isCaptured = captureTime >= captureTimeToCapture;
-
-        SetMaterial(currentState);
-
-        captureTime += Time.deltaTime;
+        if (currentState != CapturePointState.Neutral && currentState != CapturePointState.Contended)
+            captureTime += Time.deltaTime;
     }
 
     public void SetMaterial(CapturePointState state)
@@ -109,25 +127,19 @@ public class CapturePoint : MonoBehaviour
         }
         else if (state == CapturePointState.Player)
         {
-            if (isCaptured)
-            {
-                lr.material = PointGenerator.Instance.PlayerCaptured;
-            }
-            else
-            {
-                lr.material = PointGenerator.Instance.Player;
-            }
+            lr.material = PointGenerator.Instance.Player;
+        }
+        else if (state == CapturePointState.PlayerCaptured)
+        {
+            lr.material = PointGenerator.Instance.PlayerCaptured;
         }
         else if (state == CapturePointState.AI)
         {
-            if (isCaptured)
-            {
-                lr.material = PointGenerator.Instance.AiCaptured;
-            }
-            else
-            {
-                lr.material = PointGenerator.Instance.Ai;
-            }
+            lr.material = PointGenerator.Instance.Ai;
+        }
+        else if (state == CapturePointState.AICaptured)
+        {
+            lr.material = PointGenerator.Instance.AiCaptured;
         }
 
         Debug.Log($"Capture Point Material Set: {lr.material.name} for state {state} at {gameObject.name}");
@@ -138,6 +150,8 @@ public class CapturePoint : MonoBehaviour
         CapturePointState pointState = previusState;
         bool isAIPresent = false;
         bool isPlayerPresent = false;
+
+        isCaptured = captureTime >= captureTimeToCapture;
 
         foreach (Entity entity in EntitiesInRange)
         {
@@ -158,11 +172,39 @@ public class CapturePoint : MonoBehaviour
         }
         else if (isPlayerPresent && !isAIPresent)
         {
-            pointState = CapturePointState.Player;
+            if (isCaptured)
+            {
+                pointState = CapturePointState.PlayerCaptured;
+
+                if (!firedEvent)
+                {
+                    onPointCaptured?.Invoke(CapturePointState.Player);
+                    firedEvent = true;
+                    Debug.Log($"Capture Point Captured by Player at {gameObject.name}");
+                }
+            }
+            else
+            { 
+                pointState = CapturePointState.Player;
+            }
         }
         else if (!isPlayerPresent && isAIPresent)
         {
-            pointState = CapturePointState.AI;
+            if (isCaptured)
+            {
+                pointState = CapturePointState.AICaptured;
+
+                if (!firedEvent)
+                {
+                    onPointCaptured?.Invoke(CapturePointState.AI);
+                    firedEvent = true;
+                    Debug.Log($"Capture Point Captured by AI at {gameObject.name}");
+                }
+            }
+            else
+            {
+                pointState = CapturePointState.AI;
+            }
         }
 
         return pointState;
@@ -188,6 +230,8 @@ public class CapturePoint : MonoBehaviour
         {
             EntitiesInRange.Add(entity);
             other.gameObject.GetComponent<HealthController>().onDeath += OnDeath;
+            if(other.gameObject.TryGetComponent<BehaviourController>(out BehaviourController controller))
+                controller.OnCapturePoint = true;
         }
     }
 
@@ -197,6 +241,8 @@ public class CapturePoint : MonoBehaviour
         {
             EntitiesInRange.Remove(entity);
             other.gameObject.GetComponent<HealthController>().onDeath -= OnDeath;
+            if (other.gameObject.TryGetComponent<BehaviourController>(out BehaviourController controller))
+                controller.OnCapturePoint = false;
         }
     }
 
@@ -208,6 +254,33 @@ public class CapturePoint : MonoBehaviour
         {
             EntitiesInRange.Remove(entity);
             gameObject.GetComponent<HealthController>().onDeath -= OnDeath;
+            if (gameObject.TryGetComponent<BehaviourController>(out BehaviourController controller))
+                controller.OnCapturePoint = false;
+        }
+    }
+
+    public Vector3 GetRandomPoint()
+    {
+        Collider collider = GetComponent<Collider>();
+
+        Vector3 point = transform.position;
+        Vector3 colliderSize = collider.bounds.extents;
+
+        float randomX = Random.Range(-colliderSize.x, colliderSize.x);
+        float randomZ = Random.Range(-colliderSize.z, colliderSize.z);
+
+        point.x += randomX;
+        point.z += randomZ;
+
+        return point;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        foreach (Transform spot in hidingSpots)
+        {
+            Gizmos.DrawSphere(spot.position, 0.2f);
         }
     }
 }

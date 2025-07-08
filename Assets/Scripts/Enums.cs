@@ -4,7 +4,9 @@ public enum CapturePointState
     Neutral,
     Contended,
     Player,
-    AI
+    PlayerCaptured,
+    AI,
+    AICaptured
 }
 
 public enum PGType { Player, AI }

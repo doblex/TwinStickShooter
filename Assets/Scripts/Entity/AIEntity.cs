@@ -19,7 +19,7 @@ public class AIEntity : Entity
         agent.enabled = true;
 
         GetComponent<Collider>().enabled = true;
-
+        GetComponent<BehaviourController>().IsDead = false;
     }
 
     protected override void OnDeath(GameObject gameObject)
@@ -27,7 +27,9 @@ public class AIEntity : Entity
         base.OnDeath(gameObject);
         Debug.Log("AI Entity has died.");
         agent.enabled = false;
-        
+
         GetComponent<Collider>().enabled = false;
+        GetComponent<BehaviourController>().IsDead = true;
+        GetComponent<BehaviourController>().ChangeState(STATE.IDLE);
     }
 }
