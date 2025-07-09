@@ -3,12 +3,18 @@ using UnityEngine;
 
 public class PointsManager : MonoBehaviour
 {
+    public delegate void PointsUpdated(int playerPoints, int aiPoints);
+
+    public event PointsUpdated OnPointsUpdated;
+
     public static PointsManager Instance;
 
     [Header("Points")]
     [SerializeField] int playerPoints = 0;
     [SerializeField] int aiPoints = 0;
     [SerializeField] int pointsToWin = 100;
+
+    public int PointsToWin { get => pointsToWin; }
 
     private void Awake()
     {
@@ -37,10 +43,11 @@ public class PointsManager : MonoBehaviour
     {
         playerPoints += points;
         Debug.Log($"Player Points: {playerPoints}");
+        OnPointsUpdated?.Invoke(playerPoints, aiPoints);
 
         if (playerPoints >= pointsToWin)
         {
-            Debug.Log("Player wins!");
+            UIManager.Instance.ShowEndGameDoc(true);
         }
     }
 
@@ -48,10 +55,11 @@ public class PointsManager : MonoBehaviour
     {
         aiPoints += points;
         Debug.Log($"AI Points: {aiPoints}");
+        OnPointsUpdated?.Invoke(playerPoints, aiPoints);
 
         if (aiPoints >= pointsToWin)
         {
-            Debug.Log("AI wins!");
+            UIManager.Instance.ShowEndGameDoc(false);
         }
     }
 }

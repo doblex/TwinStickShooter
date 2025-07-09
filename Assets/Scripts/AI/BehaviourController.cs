@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
 using utilities.Controllers;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(AnimatorController))]
 [RequireComponent(typeof(HealthController))]
 public class BehaviourController : MonoBehaviour
 {

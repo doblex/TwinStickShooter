@@ -13,7 +13,7 @@ public class CureState : State
     {
         base.Enter();
         agent.stoppingDistance = 0f;
-        agent.speed = 4f;
+        agent.speed = 4.5f;
     }
 
     public override void Update()

@@ -15,7 +15,7 @@ internal class CaptureState : State
         base.Enter();
         agent.updatePosition = true;
         agent.stoppingDistance = 0f;
-        agent.speed = 2f;
+        agent.speed = 3.5f;
 
         target = HidingSpotManager.Instance.RequestHidingSpot();
     }
@@ -31,7 +31,16 @@ internal class CaptureState : State
             return;
         }
 
-        Seek(target != null ? target.position : PointGenerator.Instance.CurrentCapturePoint.GetRandomPoint());
+        if (AiManager.Instance.IsZoneCaptured)
+        {
+            nextState = STATE.CAMP;
+            stage = EVENT.EXIT;
+            return;
+        }
+
+        Vector3 targetPos = target != null ? target.position : PointGenerator.Instance.CurrentCapturePoint.GetRandomPoint();
+
+        Seek(targetPos);
     }
 
     public override void Exit()

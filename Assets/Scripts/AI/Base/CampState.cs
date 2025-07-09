@@ -18,7 +18,7 @@ internal class CampState : State
         agent.updatePosition = true;
         timer = 0f;
         agent.stoppingDistance = 0f;
-        agent.speed = 1.5f;
+        agent.speed = 3f;
     }
 
     public override void Update()
@@ -32,7 +32,7 @@ internal class CampState : State
             return;
         }
 
-        if (timer >= 2f)
+        if (timer >= 4f)
         {
             timer = 0f;
             HidingSpotManager.Instance.ReleaseHidingSpot(hidingSpot);

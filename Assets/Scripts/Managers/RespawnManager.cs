@@ -11,6 +11,10 @@ public class RespawnManager : MonoBehaviour
         public float Timer;
     }
 
+    public delegate void RespawnTimer(RespawnObj obj, int type); // 0 for timerUpdate , 1 for respawned , 2 for Enqueue 
+
+    public event RespawnTimer RespawnTimerEvent;
+
     public static RespawnManager Instance;
 
     [SerializeField] float RespawnTime = 5f;
@@ -37,8 +41,18 @@ public class RespawnManager : MonoBehaviour
 
             obj.Timer -= Time.deltaTime;
 
+            if (obj.Entity.Type == PGType.Player)
+            {
+                RespawnTimerEvent?.Invoke(obj,0);
+            }
+
             if (obj.Timer <= 0)
             {
+                if (obj.Entity.Type == PGType.Player)
+                {
+                    RespawnTimerEvent?.Invoke(obj, 1);
+                }
+
                 obj.Entity.Respawn();
                 entitiesToSpawn.RemoveAt(i);
                 i--;
@@ -48,11 +62,19 @@ public class RespawnManager : MonoBehaviour
 
     public void RespawnEntity(Entity entity)
     {
-        entitiesToSpawn.Add(
-            new RespawnObj()
-            {
-                Entity = entity,
-                Timer = RespawnTime
-            });
+        
+
+        RespawnObj obj = new RespawnObj()
+        {
+            Entity = entity,
+            Timer = RespawnTime
+        };
+
+        if (obj.Entity.Type == PGType.Player)
+        {
+            RespawnTimerEvent?.Invoke(obj, 2);
+        }
+
+        entitiesToSpawn.Add(obj);
     }
 }

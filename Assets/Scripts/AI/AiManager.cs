@@ -11,9 +11,11 @@ public class AiManager : MonoBehaviour
 
     bool isZoneContested;
     bool isTeamCamping;
+    bool isZoneCaptured;
 
     public bool IsZoneContested { get => isZoneContested; }
     public bool IsTeamCamping { get => isTeamCamping; }
+    public bool IsZoneCaptured { get => isZoneCaptured; }
 
     private void Awake()
     {
@@ -64,6 +66,8 @@ public class AiManager : MonoBehaviour
         isZoneContested = 
             PointGenerator.Instance.CurrentCapturePoint != null 
             && PointGenerator.Instance.CurrentCapturePoint.CurrentState == CapturePointState.Contended;
+
+        isZoneCaptured = PointGenerator.Instance.CurrentCapturePoint.CurrentState == CapturePointState.AICaptured;
     }
 
     private void DefendPoint()

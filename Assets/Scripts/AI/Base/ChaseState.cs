@@ -13,7 +13,7 @@ internal class ChaseState : State
         base.Enter();
         agent.updatePosition = true;
         agent.stoppingDistance = 5f;
-        agent.speed = 2.2f;
+        agent.speed = 3.5f;
     }
 
     public override void Update()

@@ -1,9 +1,0 @@
-<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <engine:VisualElement style="flex-grow: 1; position: absolute; left: 159px; width: 400px; height: 150px; background-color: rgba(0, 0, 0, 0.45); align-items: stretch; justify-content: flex-start; top: 398px; transform-origin: center; translate: 0 0;">
-        <engine:Button text="Play" name="Play" style="height: 45%;" />
-        <engine:Button text="Exit" name="Exit" style="height: 45%;" />
-    </engine:VisualElement>
-    <engine:VisualElement style="flex-grow: 1; position: absolute; top: 0; height: 200px; width: 60%; align-self: center;">
-        <engine:Label text="Shooting Range" style="font-size: 80px; -unity-text-align: middle-center; height: 100%; text-shadow: 2px 2px 5px rgb(255, 255, 255); -unity-font-style: bold;" />
-    </engine:VisualElement>
-</engine:UXML>

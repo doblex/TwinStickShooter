@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement style="flex-grow: 1; align-self: center; flex-direction: row; width: 10%; justify-content: space-around;">
+        <engine:VisualElement style="flex-grow: 1; align-self: center; align-items: stretch; justify-content: space-evenly; height: auto;">
+            <engine:Label text="Pause" style="-unity-text-align: middle-center; font-size: 60px;" />
+            <engine:Button text="Resume" name="ResumeBtn" />
+            <engine:Button text="Main Menu" name="MainMenuBtn" />
+            <engine:Button text="Quit" name="QuitBtn" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

@@ -116,19 +116,6 @@ public class State
         Debug.DrawLine(agent.transform.position + Vector3.up, position + Vector3.up, Color.red);
     }
 
-    protected void SeekCapturePoint()
-    {
-        if (!agent.enabled) return;
-
-        agent.SetDestination(PointGenerator.Instance.CurrentCapturePoint.GetPosition());
-
-        Debug.DrawLine(
-            agent.transform.position + Vector3.up,
-            PointGenerator.Instance.CurrentCapturePoint.GetPosition() + Vector3.up,
-            Color.red
-            );
-    }
-
     protected void Attack()
     {
         if (!agent.enabled) return;
